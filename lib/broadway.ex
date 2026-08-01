@@ -1273,7 +1273,12 @@ defmodule Broadway do
       type: :atom,
       default: :default,
       doc: """
-      the name of the batcher to use for the test message.
+      the name of the batcher assigned to the test message. This option is useful
+      when the producer's `:transform` option sets the batcher, as test messages
+      do not run through the producer. If `handle_message/3` sets the batcher, its
+      value replaces this one.
+
+      *Available since v1.3.0*.
       """
     ]
   ]
@@ -1379,7 +1384,7 @@ defmodule Broadway do
 
   defp test_messages(broadway, data, batch_mode, opts) when is_broadway_name(broadway) do
     metadata = opts |> Keyword.fetch!(:metadata) |> Map.new()
-    batcher = Keyword.get(opts, :batcher, :default)
+    batcher = Keyword.fetch!(opts, :batcher)
 
     acknowledger =
       Keyword.get(opts, :acknowledger, fn _data, ack_ref ->
